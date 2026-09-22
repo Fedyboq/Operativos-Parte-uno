@@ -12,7 +12,12 @@ enum Role {
     USER,
     ADMIN,
 };
-
+/*
+enum Operation {
+    OP_READ = 1,
+    OP_WRITE = 2
+};
+*/
 typedef struct {
     int role;
 } task_sec;
@@ -36,7 +41,22 @@ int sec_file_check(task_struct* task, inode* node, int mask) {
     printf("  [LSM Hook] -> CONCEDIDO: Pasa las politicas de seguridad.\n");
     return SUCCESS;
 }
+/*
+int sec_write_check(task_struct* task, inode* node, int mask) {
+    task_sec* ts = (task_sec*)task->security;
 
+    printf("  [LSM Hook 2 - Permisos] Evaluando tipo de operacion (mask = %d)...\n", mask);
+
+    // Regla: Solo un ADMIN puede realizar operaciones de ESCRITURA (mask == OP_WRITE).
+    if (mask == OP_WRITE && (!ts || ts->role != ADMIN)) {
+        printf("  [LSM Hook 2] -> DENEGADO: Solo ADMIN puede modificar (escribir) el archivo.\n");
+        return EACCES; // Retornamos error de permisos
+    }
+
+    printf("  [LSM Hook 2] -> CONCEDIDO: Permisos de operacion validos.\n");
+    return SUCCESS;
+}
+*/
 // 2. EL KERNEL: Emulamos la llamada al sistema real
 int sys_open(task_struct* current_task, inode* current_inode, int mask) {
     printf("\n--- EJECUTANDO open() SYSCALL ---\n");
@@ -79,7 +99,11 @@ int main() {
     task_struct user_task;
     task_sec u_sec = { .role = USER };
     user_task.security = &u_sec;
-
+/*
+    hook my_write_module;
+    init_hook(&my_write_module, 2, sec_write_check);
+    register_module(module_manager, &my_write_module);
+*/
     inode test_file;
     file_sec f_sec = { .hidden = 0 };
     test_file.security = &f_sec;
