@@ -1,5 +1,5 @@
 #include "lsm.c"
-#include <errno.h>  // Corregido: En C puro es errno.h, no cerrno
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,7 +21,6 @@ typedef struct {
     int hidden;
 } file_sec;
 
-// 1. EL HOOK: Corregimos la firma para que coincida exactamente con open_hook_fn
 int sec_file_check(task_struct* task, inode* node, int mask) {
     task_sec* ts = (task_sec*)task->security;
     file_sec* fs = (file_sec*)node->security;
